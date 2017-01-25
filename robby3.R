@@ -1,18 +1,16 @@
 library(data.table)
 library(magrittr)
 
-labels = c(1:3)
-labels.names = c('empty', 'wall', 'can')
-moves = c(1:7)
-moves.names = c('move_N', 'move_S', 'move_E', 'move_W', 'move_R', 'stay_put', 'pick_up_can')
+labels = data.frame(label = c(1:3), name = c('empty', 'wall', 'can'))
+moves = data.frame(label = c(1:7), name = c('move_N', 'move_S', 'move_E', 'move_W', 'move_R', 'stay_put', 'pick_up_can'))
 
 # build decision matrix
-grid <- expand.grid(labels, labels, labels, labels, labels)
+grid <- labels$label %>% expand.grid(., ., ., ., .)
 mult <- c(10000, 1000, 100, 10, 1)
 grid <- t(t(grid) * mult)
 states <- rowSums(grid)
-gen.dt <- data.table(state = states) %>% .[order(states)]
-
+state.dt <- data.table(state = states) %>% .[order(states)]
+setkey(state.dt, state)
 
 # look around and determine the state of neighbors
 lookAround <- function(can_grid, position){
@@ -42,7 +40,7 @@ lookAround <- function(can_grid, position){
 }
 
 # check fitness
-checkFit <- function(st, nmoves = 200, times = 100){
+checkFit <- function(strategy, nmoves = 200, times = 100){
     ## evaluates the strategy for <nmoves> moves over <times> iterations
     # initalize score
     score <- 0
@@ -53,7 +51,7 @@ checkFit <- function(st, nmoves = 200, times = 100){
         pos = c(1, 1) # start positon for each trial
         for(move in 1:nmoves){
             cstate <- lookAround(can_grid, pos)
-            mv <- st[state == cstate, strategy]
+            mv <- strategy[state == cstate, strategy]
             switch(mv,
                    if(pos[1] == 1){ # move North
                        score = score - 5
@@ -93,7 +91,7 @@ checkFit <- function(st, nmoves = 200, times = 100){
 gen <- list()
 for(i in 1:200){
     # for the 200 individuals in the generation
-    gen[[i]] <- copy(gen.dt[, strategy := sample(moves, nrow(gen.dt), replace = TRUE)])
+    gen[[i]] <- copy(state.dt[, strategy := sample(moves, nrow(state.dt), replace = TRUE)])
     # have to copy or will change by reference
 }
 
@@ -115,6 +113,7 @@ fitsums <- c()
 
 newGen <- function(generation = gen, pmutate = 0.01){
     new.gen <- list()
+    print("Checking fitness for current generation. ")
     gen.fit <- lapply(gen, snowflake)
     gen.fit.dt <- data.table(stratnum = 1:length(gen.fit), fitness = unlist(gen.fit))
     gen.fit.dt[fitness < 0, fitness := 0.01] # set negatives to 0.01
@@ -122,6 +121,7 @@ newGen <- function(generation = gen, pmutate = 0.01){
     sum.fit <- gen.fit.dt[, sum(fitness)]
     fitsums <<- c(fitsums, sum.fit) # store generation fitness sum
     gen.fit.dt[, iprob := fitness/sum.fit] # as probabilities for selection
+    print("Selecting and combining strategies for new generation. ")
     indices <- seq(1, 200, 2)
     for(i in 1:100){
         p <- gen.fit.dt[, sample(stratnum, 2, prob = iprob)]
@@ -135,17 +135,3 @@ newGen <- function(generation = gen, pmutate = 0.01){
     }
     return(new.gen)
 }
-
-st <- Sys.time()
-gen.bank <- list()
-snowstate = 1
-gen.bank[[1]] <- gen
-ngen = 10
-for(g in 2:ngen){
-    sprintf("Building generation %s...", g)
-    gen.bank[[g]] <- newGen(gen.bank[[g-1]])
-}
-sprintf("Completed %s generations.", ngen)
-saveRDS(gen.bank, "gen_bank.rds")
-et <- Sys.time()
-difftime(et, st)
