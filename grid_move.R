@@ -1,5 +1,4 @@
 # set up the initial grid
-A <- matrix(0, nrow = 5, ncol= 5)
 
 make_grid <- function(n = 5, k = 3){
   # n x n matrix
@@ -12,3 +11,19 @@ make_grid <- function(n = 5, k = 3){
   }
   return(A)
 }
+
+# create a list of all possible states
+library(gtools)
+get_permutations <- function(n = 5, g = c(0, 1)){
+  # n dimensions
+  # g is a vector of generators
+  outs <- permutations(2, n, g, repeats.allowed = TRUE)
+  return(outs)
+}
+
+get_strat_random <- function(n = 32, g = c(1:6)){
+  # n = length of strategy vector
+  # g = vector of generators
+  return(sample(g, n, replace = TRUE))
+}
+
