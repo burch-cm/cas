@@ -1,5 +1,6 @@
 # get a view of the neighborhood
-view_neighborhood <- function(t_matrix, pos = c(1, 1)){
+look_around <- function(t_matrix, pos = c(1, 1)){
+  # look at immediate "neighborhood" as vector
   # initialize viewpoint vector
   view <- vector("numeric", length = 5)
   # check N
@@ -20,6 +21,7 @@ view_neighborhood <- function(t_matrix, pos = c(1, 1)){
                     t_matrix[pos[1], pos[2] + 1])
   # check underfoot
   view[5] <- t_matrix[pos[1], pos[2]]
+  # return a vector of values to the NSWE<p>
   return(view)
 }
 
