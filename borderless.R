@@ -18,7 +18,8 @@ calc_fitness <- function(t_matrix, p_matrix, strat_vec, n_steps = 200, start_pos
     # carry out strategy - move, do nothing, pick up target, etc.
     # positions: 1 = N, 2 = S, 3 = W, 4 = E, 5 = random, 6 = pick up target
     if(v){
-      print(sprintf("Local view: %d", view))
+      print(sprintf("------ iteration %d ------", cstep))
+      print(paste0("View at position [", paste(cpos, collapse = ", "), "]: ", paste(view, collapse = "")))
       print(sprintf("Strategy selected: %s", strat))
     }
     
@@ -42,10 +43,15 @@ calc_fitness <- function(t_matrix, p_matrix, strat_vec, n_steps = 200, start_pos
                       score <- score - 3)
           )
     if(v){
-      sprintf("current fitness: %d", score)
+      sprintf("Score: %d", score)
     }
     # iterate step counter
     cstep <- cstep + 1
   }
   return(score)
+}
+
+make_generation <- function(n = 100){
+  # n members of a given generation
+  G <-
 }
