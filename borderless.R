@@ -16,7 +16,7 @@ calc_fitness <- function(t_matrix, p_matrix, strat_vec, n_steps = 200, start_pos
     # initialize a 'score' of 'fitness'
     score <- start_score
     # carry out strategy - move, do nothing, pick up target, etc.
-    # positions: 1 = N, 2 = S, 3 = W, 4 = E, 5 = random, 6 = pick up target
+    # positions: 1 = N, 2 = S, 3 = W, 4 = E, 5 = pick up target
     if(v){
       print(sprintf("------ iteration %d ------", cstep))
       print(paste0("View at position [", paste(cpos, collapse = ", "), "]: ", paste(view, collapse = "")))
@@ -32,13 +32,11 @@ calc_fitness <- function(t_matrix, p_matrix, strat_vec, n_steps = 200, start_pos
                       cpos <- c(cpos[1] + 1, cpos[2])),
            "3" = ifelse(cpos[2] <= 1,
                       cpos <- c(cpos[1], ncol(t_matrix)),
-                      cpos <- c(cpos[1], cpos[1] - 1)),
+                      cpos <- c(cpos[1], cpos[2] - 1)),
            "4" = ifelse(cpos[2] >= ncol(t_matrix),
                       cpos <- c(cpos[1], 1),
                       cpos <- c(cpos[1], cpos[2] + 1)),
-           "5" = cpos <- c(cpos[1] + sample(c(-1, 0, 1), 1),
-                           cpos[2] + sample(c(-1, 0, 1), 1)),
-           "6" = ifelse(t_matrix[cpos[1], cpos[2]] == 1,
+           "5" = ifelse(t_matrix[cpos[1], cpos[2]] == 1,
                       score <- score + 5,
                       score <- score - 3)
           )
@@ -49,9 +47,4 @@ calc_fitness <- function(t_matrix, p_matrix, strat_vec, n_steps = 200, start_pos
     cstep <- cstep + 1
   }
   return(score)
-}
-
-make_generation <- function(n = 100){
-  # n members of a given generation
-  G <-
 }

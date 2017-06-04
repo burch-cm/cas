@@ -44,6 +44,7 @@ look_around <- function(t_matrix, pos = c(1, 1)){
   view[4] <- ifelse(pos[2] >= ncol(t_matrix),
                     t_matrix[pos[1], 1],
                     t_matrix[pos[1], pos[2] + 1])
+  
   # check underfoot
   view[5] <- t_matrix[pos[1], pos[2]]
   # return a vector of values to the NSWE<p>
@@ -51,7 +52,7 @@ look_around <- function(t_matrix, pos = c(1, 1)){
 }
 
 
-get_strat_random <- function(n = 32, g = c(1:6)){
+get_strat_random <- function(n = 32, g = c(1:5)){
   # n = length of strategy vector
   # g = vector of generators
   return(sample(g, n, replace = TRUE))
